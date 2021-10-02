@@ -4,13 +4,16 @@ public class Main {
 
 
     public static void main(String[] args) {
-        final int Mode=1;   //Условия вытаскивания. 0 для случая, когда шарики кладутся обратно, 1, когда нет
-        Probability urns=new Probability();
-        System.out.println(urns.probabilityToGet(1,1, 2, Mode));
-        System.out.println(urns.probabilityToGetOthers(1,1, 3, Mode));
-        urns.reset();
-        System.out.println(urns.probabilityToGetExactly(1,1, 2, Mode));
-        //System.out.println(Probability.calculateC());
+
+        int Mode=0;   //Условия вытаскивания. 0 для случая, когда шарики кладутся обратно, 1, когда нет\
+        int[][] balls=new int[][]{{7, 10, 6},
+                {9, 5, 9},
+                {6, 5, 9}};
+        int N=5;
+        final int[] Need={1,2,2};
+
+        Probability urns=new Probability(balls, N);
+        System.out.println(urns.probabilityToGetMoreFromAll(3,2, Mode));
 
     }
 

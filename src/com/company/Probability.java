@@ -1,62 +1,85 @@
 package com.company;
 
 public class Probability {
-    //Шарики в урнах
-    int[][] Balls= {{7,10,6},
-            {9,5 ,9},
-            {6,5 ,9}};
-    //Сколько нужно вытащить
-    final int[] Need={1,2,2};
-    final int N=5;
+    //Начальное значение шариков в урнах
+    final int[][] OBalls;
+    //Фактическое значения шариков в урнах
+    int[][] Balls;
+    //Значение n
+    final int N;
 
+    //
+    //Технические методы
+    //
+    Probability(int[][] urns, int _n){
+        OBalls=urns;
+        Balls=OBalls;
+        N=_n;
+    }
+    //Возвращает урны в изначальное состояние
+    void reset(){
+        Balls= OBalls;
+    }
+    //Подсчёт факториала
+    static long factorial(int number){
+        long fact=1;
+        for (int count=2; count<=number; count++) fact*=count;
+        return fact;
+    }
+
+    //Метод подсчёта C из n по k
+    static long calculateC(int n, int k){
+        long c=1;
+        for (int count=n; count>k; count--) c*=count;
+        for (int count=n-k; count>1; count--) c/=count;
+        return c;
+    }
+
+    //
+    //Методы работы с одной урной
+    //
+    //Вероятность вытащить один шарик этого цвета из урны
     public double probabilityToGet(int urn, int colour, int mode){
-        return probabilityToGet(urn, colour, 1, mode);
-    }
+        urn--;
+        colour--;
 
+        if (Balls[urn][colour]==0) return 0;
+
+        double probability=(double) Balls[urn][colour]/(Balls[urn][0]+Balls[urn][1]+Balls[urn][2]);
+        Balls[urn][colour]-=mode;
+
+        return probability;
+    }
+    //Вероятность вытащить один шарик не этого цвета из урны
+    public double probabilityToGetOther(int urn, int colour, int mode){
+        urn--;
+        colour--;
+
+        if (Balls[urn][(colour+1)%3]+Balls[urn][(colour+2)%3]==0) return 0;
+
+        double probability=((double) Balls[urn][(colour+1)%3]+Balls[urn][(colour+2)%3])/(Balls[urn][0]+Balls[urn][1]+Balls[urn][2]);
+        if (Balls[urn][(colour+1)%3]!=0) Balls[urn][(colour+1)%3]-=mode;
+        else Balls[urn][(colour+2)%3]-=mode;
+
+        return probability;
+    }
+    //Вероятность вытащить number шариков этого цвета из урны
     public double probabilityToGet(int urn, int colour, int number, int mode){
-        urn--;
-        colour--;
-
-        if (number>Balls[urn][colour]) return 0;
-        int balls=Balls[urn][0]+Balls[urn][1]+Balls[urn][2];
-
         double probability=1;
 
-        for (int count=0; count<number; count++){
-            probability*=((double) Balls[urn][colour]/balls);
-            balls-=mode;
-            Balls[urn][colour]-=mode;
-        }
+        for (int count=0; count<number; count++)probability*=probabilityToGet(urn, colour, mode);
 
         return probability;
     }
-
+    //Вероятность вытащить number шариков не этого цвета из урны
     double probabilityToGetOthers(int urn, int colour, int number, int mode){
-        urn--;
-        colour--;
-
-        int balls=Balls[urn][0]+Balls[urn][1]+Balls[urn][2];
-        int nBalls=balls-Balls[urn][colour];
-        if (number>nBalls) return 0;
-
         double probability=1;
 
-        for (int count=0; count<number; count++){
-            probability*=((double) nBalls)/balls;
-            balls-=mode;
-            nBalls-=mode;
-        }
-
-        if(mode==1){
-            if (Balls[urn][(colour+1)%3]<number) {
-                number=number-Balls[urn][(colour+1)%3];
-                Balls[urn][(colour+1)%3]=0;
-                Balls[urn][(colour+2)%3]-=number;
-            }else Balls[urn][(colour+1)%3]-=number;
-        }
+        for (int count=0; count<number; count++) probability*=probabilityToGetOther(urn, colour, mode);
 
         return probability;
     }
+    //Вероятность вытащить ровно number шариков этого цвета из урны
     double probabilityToGetExactly(int urn, int colour, int number, int mode){
         double probability=1;
         probability*=probabilityToGet(urn,colour, number, mode);
@@ -64,18 +87,46 @@ public class Probability {
         probability*=calculateC(N-number+1, number);
         return probability;
     }
-    void reset(){
-        Balls= new int[][]{{7, 10, 6},
-                {9, 5, 9},
-                {6, 5, 9}};
+
+    //
+    //Методы работы с несколькими урнами
+    //
+    //Вероятность получения конкретного числа шаров данного цвета из всех урн
+    double probabilityToGetExactlyFromAll(int color, int number, int mode){
+        double probability=0;
+        //Цикл ровно по одному разу проверяет все возможные выборы количсетва шариков из каждой из урн, если number>шариков нужного цвета в любой из корзин
+        for (int take1=number; take1>=0; take1--){                                                                   //Сколько шариков должно будет взято из первой урны
+            for(int take2=number-take1; take2>=0; take2--) {                                                         //Сколько шариков должно будет взято из второй урны
+                probability+=probabilityToGetExactly(1, color, take1, mode)
+                            *probabilityToGetExactly(2, color, take2, mode)
+                            *probabilityToGetExactly(3, color, number-take1-take2, mode);
+                reset();
+            }
+        }
+        return probability;
     }
-    static long factorial(int number){
-        long fact=1;
-        for (int count=2; count<=number; count++) fact*=count;
-        return fact;
+    //Вероятность получения меньше данного количества шаров данного цвета из всех урн
+    double probabilityToGetLessFromAll(int color, int number, int mode){
+        double probability=0;
+        for (int count=0; count<number; count++){
+            probability+=probabilityToGetExactlyFromAll(color, count, mode);
+        }
+        return probability;
+
     }
-    static long calculateC(int n, int m){
-        long c=factorial(n)/(factorial(m)*factorial(n-m));
-        return c;
+    //Вероятность получения больше данного количества шаров данного цвета из всех урн
+    double probabilityToGetMoreFromAll(int color, int number, int mode){
+        double probability=0;
+        number++;
+        //Цикл ровно по одному разу проверяет все возможные выборы количсетва шариков из каждой из урн, если number>шариков нужного цвета в любой из корзин
+        for (int take1=number; take1>=0; take1--){                                                                   //Сколько шариков должно будет взято из первой урны
+            for(int take2=number-take1; take2>=0; take2--) {                                                         //Сколько шариков должно будет взято из второй урны
+                probability+=probabilityToGet(1, color, take1, mode)
+                            *probabilityToGet(2, color, take2, mode)
+                            *probabilityToGet(3, color, number-take1-take2, mode);
+                reset();
+            }
+        }
+        return probability;
     }
 }
