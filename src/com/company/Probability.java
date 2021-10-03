@@ -2,9 +2,9 @@ package com.company;
 
 public class Probability {
     //Начальное значение шариков в урнах
-    final int[][] OBalls;
+    final int[][] OBalls=new int[3][3];
     //Фактическое значения шариков в урнах
-    int[][] Balls;
+    int[][] Balls=new int[3][3];
     //Значение n
     final int N;
 
@@ -12,13 +12,19 @@ public class Probability {
     //Технические методы
     //
     Probability(int[][] urns, int _n){
-        OBalls=urns;
-        Balls=OBalls;
+        for (int i=0; i<3; i++){
+            System.arraycopy(urns[i], 0, OBalls[i], 0, 3);
+        }
+        for (int i=0; i<3; i++){
+            System.arraycopy(OBalls[i], 0, Balls[i], 0, 3);
+        }
         N=_n;
     }
     //Возвращает урны в изначальное состояние
     void reset(){
-        Balls= OBalls;
+        for (int i=0; i<3; i++){
+            System.arraycopy(OBalls[i], 0, Balls[i], 0, 3);
+        }
     }
     //Подсчёт факториала
     static long factorial(int number){
@@ -26,7 +32,6 @@ public class Probability {
         for (int count=2; count<=number; count++) fact*=count;
         return fact;
     }
-
     //Метод подсчёта C из n по k
     static long calculateC(int n, int k){
         long c=1;
