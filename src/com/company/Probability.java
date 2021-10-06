@@ -32,6 +32,17 @@ public class Probability {
         for (int count=2; count<=number; count++) fact*=count;
         return fact;
     }
+    //Метод посдсчёта с повторениями. numbers количества шариков каждего цвета
+    static long permutationWithRepetition(int[] numbers){
+        int n=0;
+        long repetition=1;
+
+        for (int number : numbers) {
+            n+=number;                                                                                                  //Подсчёт общего числа
+            repetition*=factorial(number);
+        }
+        return factorial(n)/repetition;
+    }
     //Метод подсчёта C из n по k
     static long calculateC(int n, int k){
         long c=1;
@@ -89,7 +100,7 @@ public class Probability {
         double probability=1;
         probability*=probabilityToGet(urn,colour, number, mode);
         probability*=probabilityToGetOthers(urn,colour, N-number, mode);
-        probability*=calculateC(N-number+1, number);
+        probability*=calculateC(N, number);
         return probability;
     }
 

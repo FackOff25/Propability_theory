@@ -12,7 +12,7 @@ public class Main {
                 {6, 5, 9}};
         int n=5;
         final int[] need={1,2,2};
-        */
+         */
 
         Scanner sc = new Scanner(System.in);
 
@@ -58,7 +58,7 @@ public class Main {
     public static double problem31(char[] problem, int[][] balls, int[] need, int n){
         Probability urns=new Probability(balls, n);
         double probability=0;
-        int mode= (problem[4]=='а'||problem[4]=='в') ? 0 : 1;
+        int mode = (problem[4]=='а'||problem[4]=='в') ? 0 : 1;
 
         for (int count=1; count<4; count++) {
             double preProbability=1;
@@ -69,7 +69,7 @@ public class Main {
         }
 
         probability/=3;
-        if (!(problem[4]=='в'||problem[4]=='г')) probability*=Probability.factorial(5);
+        if (!(problem[4]=='в'||problem[4]=='г')) probability*=Probability.permutationWithRepetition(need);
         else probability*=Probability.factorial(3);
 
         return probability;
@@ -89,9 +89,10 @@ public class Main {
             probability+=preProbability;
         }
 
+        /*Т.к. в итоге сократится, то считать "чисто" не требуется. Оставлю в комментариях чтобы было понятно, что это предусмотрено
         probability/=3;
-        if (!(problem[4]=='в'||problem[4]=='г')) probability*=Probability.factorial(5);
-        else probability*=Probability.factorial(3);
+        if (!(problem[4]=='в'||problem[4]=='г')) probability*=Probability.permutationWithRepetition(need);
+        else probability*=Probability.factorial(3);*/
 
         if (problem[4]<'4') {
             urns.reset();
@@ -105,9 +106,10 @@ public class Main {
 
             }
 
+            /*Сократится. См. закоментированный блок выше
             preProbability/=3;
-            if (!(problem[6]=='в'||problem[6]=='г')) preProbability*=Probability.factorial(5);
-            else preProbability*=Probability.factorial(3);
+            if (!(problem[6]=='в'||problem[6]=='г')) preProbability*=Probability.permutationWithRepetition(need);
+            else preProbability*=Probability.factorial(3);*/
 
             return preProbability/probability;
         }else {                                                                                                         //Задание 3.2 пункт 4
